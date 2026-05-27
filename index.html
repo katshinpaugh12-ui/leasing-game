@@ -1,0 +1,1283 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leasing Deal or No Deal</title>
+    <style>
+      :root {
+        color: #182033;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        background: #f7f4ef;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+      }
+
+      .app-shell {
+        min-height: 100vh;
+        padding: 32px;
+        background:
+          radial-gradient(
+            circle at 12% 18%,
+            rgba(245, 196, 71, 0.22),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at 88% 10%,
+            rgba(60, 128, 214, 0.18),
+            transparent 26%
+          ),
+          linear-gradient(135deg, #fff8e5 0%, #f6fbff 48%, #f7f4ef 100%);
+      }
+
+      .game-layout {
+        width: min(1280px, 100%);
+        margin: 0 auto;
+      }
+
+      .page-header {
+        margin-bottom: 26px;
+        text-align: center;
+      }
+
+      .eyebrow,
+      .panel-kicker {
+        margin: 0;
+        color: #3962a8;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .page-header h1 {
+        margin: 4px 0 0;
+        color: #111827;
+        font-size: clamp(2.6rem, 6vw, 5.4rem);
+        font-weight: 950;
+        line-height: 0.95;
+      }
+
+      .content-grid {
+        display: grid;
+        grid-template-columns: minmax(280px, 0.85fr) minmax(0, 2fr);
+        gap: 22px;
+      }
+
+      .panel {
+        border: 1px solid rgba(17, 24, 39, 0.1);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 22px 55px rgba(42, 51, 72, 0.13);
+      }
+
+      .incentives-panel,
+      .board-panel {
+        padding: 22px;
+      }
+
+      .panel-header,
+      .board-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      h2,
+      h3 {
+        margin: 0;
+        color: #111827;
+      }
+
+      .panel h2 {
+        margin-top: 3px;
+        font-size: 1.35rem;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 42px;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        border-radius: 8px;
+        padding: 0 16px;
+        color: #111827;
+        font-weight: 800;
+        transition:
+          transform 160ms ease,
+          box-shadow 160ms ease,
+          background 160ms ease;
+      }
+
+      .button:hover:not(:disabled) {
+        transform: translateY(-1px);
+      }
+
+      .button.primary {
+        background: #2867c7;
+        color: #fff;
+      }
+
+      .button.accent {
+        background: #f2b61e;
+        color: #261b02;
+        box-shadow: 0 8px 20px rgba(196, 139, 9, 0.22);
+      }
+
+      .button.success {
+        background: #168452;
+        color: #fff;
+      }
+
+      .button.danger {
+        background: #c93833;
+        color: #fff;
+      }
+
+      .button.neutral {
+        background: #e8edf4;
+      }
+
+      .button.ghost {
+        background: transparent;
+        color: #5d6678;
+      }
+
+      .button.ghost:disabled {
+        color: #a9b0bd;
+      }
+
+      .button.small,
+      .button.icon-sized {
+        min-height: 36px;
+        padding: 0 12px;
+        font-size: 0.88rem;
+      }
+
+      .button.large {
+        min-width: 112px;
+        min-height: 52px;
+        font-size: 1.05rem;
+      }
+
+      .prize-list {
+        display: grid;
+        max-height: 650px;
+        gap: 10px;
+        overflow-y: auto;
+        padding-right: 6px;
+      }
+
+      .prize-row {
+        display: flex;
+        min-height: 58px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        border: 1px solid #e6e9ef;
+        border-radius: 8px;
+        background: #f8fafc;
+        padding: 10px;
+      }
+
+      .prize-name {
+        min-width: 0;
+        color: #232c3f;
+        font-weight: 750;
+        overflow-wrap: anywhere;
+      }
+
+      .row-actions {
+        display: flex;
+        flex: 0 0 auto;
+        gap: 6px;
+      }
+
+      .prize-input {
+        min-width: 0;
+        width: 100%;
+        min-height: 38px;
+        border: 1px solid #b8c2d3;
+        border-radius: 8px;
+        padding: 0 10px;
+      }
+
+      .selected-banner {
+        margin-bottom: 18px;
+        border: 1px solid #bad0f2;
+        border-radius: 8px;
+        background: #eaf2ff;
+        padding: 13px 16px;
+        color: #163d79;
+        text-align: center;
+        font-weight: 750;
+      }
+
+      .offer-card,
+      .finish-card {
+        margin-bottom: 20px;
+        border-radius: 8px;
+        padding: 22px;
+        text-align: center;
+      }
+
+      .offer-card {
+        border: 2px solid #f2c84b;
+        background: #fff3b8;
+        box-shadow: 0 16px 34px rgba(181, 132, 21, 0.22);
+      }
+
+      .offer-card p,
+      .finish-card p {
+        margin: 0 0 8px;
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .offer-card h3 {
+        margin-bottom: 18px;
+        font-size: clamp(1.7rem, 4vw, 2.6rem);
+        font-weight: 950;
+      }
+
+      .deal-actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+      }
+
+      .case-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(120px, 1fr));
+        gap: 14px;
+      }
+
+      .case-button {
+        min-height: 142px;
+        border: 2px solid #bd8410;
+        border-radius: 8px;
+        background: linear-gradient(145deg, #ffc944, #e8a817);
+        color: #fff;
+        box-shadow:
+          inset 0 -10px 20px rgba(92, 57, 5, 0.12),
+          0 12px 22px rgba(116, 84, 21, 0.2);
+        transition:
+          transform 160ms ease,
+          border-color 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .case-button:hover:not(:disabled) {
+        transform: translateY(-3px);
+      }
+
+      .case-button.selected {
+        border-color: #154b9f;
+        background: linear-gradient(145deg, #2d74dc, #1f55ad);
+        box-shadow: 0 16px 30px rgba(31, 85, 173, 0.26);
+      }
+
+      .case-button.revealed {
+        border-color: #d6dbe5;
+        background: #f2f5f8;
+        color: #1f2937;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+      }
+
+      .case-front,
+      .case-prize {
+        display: flex;
+        width: 100%;
+        min-height: 112px;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .case-front {
+        flex-direction: column;
+        text-transform: uppercase;
+      }
+
+      .case-label {
+        font-size: 0.78rem;
+        font-weight: 850;
+        opacity: 0.9;
+      }
+
+      .case-number {
+        font-size: 2.75rem;
+        font-weight: 950;
+        line-height: 1;
+      }
+
+      .your-case {
+        margin-top: 9px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 9px;
+        font-size: 0.68rem;
+        font-weight: 900;
+      }
+
+      .case-prize {
+        padding: 6px;
+        color: #172033;
+        font-size: 0.95rem;
+        font-weight: 900;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+      }
+
+      .finish-card {
+        margin: 24px 0 0;
+        border: 2px solid #8dd4a9;
+        background: #e6f8ed;
+      }
+
+      .finish-card h3 {
+        margin-bottom: 8px;
+        font-size: clamp(1.5rem, 3vw, 2.2rem);
+        font-weight: 950;
+      }
+
+      .finish-card strong {
+        color: #137847;
+        font-size: clamp(1.4rem, 3vw, 2rem);
+      }
+
+      .winner-form {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .winner-input {
+        min-width: 0;
+        min-height: 46px;
+        border: 1px solid #9eb1c8;
+        border-radius: 8px;
+        padding: 0 12px;
+      }
+
+      .winner-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .winner-list-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .winner-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border: 1px solid #d8e2ef;
+        border-radius: 8px;
+        background: #f5f8fc;
+        padding: 12px;
+      }
+
+      .winner-row span {
+        color: #152944;
+        font-weight: 850;
+      }
+
+      .winner-row small {
+        color: #4d5f75;
+        font-weight: 750;
+      }
+
+      footer {
+        padding: 18px 0 0;
+        color: #626b7b;
+        text-align: center;
+        font-size: 0.93rem;
+      }
+
+      @media (max-width: 940px) {
+        .app-shell {
+          padding: 22px;
+        }
+
+        .content-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .case-grid {
+          grid-template-columns: repeat(3, minmax(100px, 1fr));
+        }
+      }
+
+      @media (max-width: 620px) {
+        .app-shell {
+          padding: 14px;
+        }
+
+        .incentives-panel,
+        .board-panel {
+          padding: 16px;
+        }
+
+        .panel-header,
+        .board-topbar {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .board-topbar .button,
+        .panel-header .button {
+          width: 100%;
+        }
+
+        .case-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        .case-button {
+          min-height: 128px;
+        }
+
+        .row-actions {
+          flex-direction: column;
+        }
+
+        .deal-actions {
+          flex-direction: column;
+        }
+
+        .winner-form,
+        .winner-row {
+          grid-template-columns: 1fr;
+        }
+
+        .winner-form .button {
+          width: 100%;
+        }
+      }
+
+      :root {
+        color: #d9e5f4;
+        background: #050918;
+      }
+
+      body {
+        background: #050918;
+      }
+
+      .app-shell {
+        padding: 8px;
+        background:
+          radial-gradient(circle at 50% -10%, rgba(27, 55, 104, 0.35), transparent 30%),
+          linear-gradient(180deg, #070b1c 0%, #050918 100%);
+      }
+
+      .game-layout {
+        width: min(1440px, 100%);
+      }
+
+      .page-header {
+        display: none;
+      }
+
+      .brand-title {
+        margin: 0 0 14px;
+        color: #f1d48b;
+        font-size: clamp(1.75rem, 4vw, 3.4rem);
+        font-weight: 950;
+        letter-spacing: 0.04em;
+        line-height: 1;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .panel {
+        border: 1px solid #1d2a4b;
+        background: rgba(9, 14, 34, 0.82);
+        box-shadow: none;
+      }
+
+      .board-panel {
+        order: 1;
+        min-height: calc(100vh - 18px);
+        padding: 0;
+        border-color: transparent;
+        background: transparent;
+      }
+
+      .incentives-panel {
+        order: 2;
+        background: #080d20;
+      }
+
+      .board-topbar {
+        align-items: flex-start;
+        margin-bottom: 10px;
+      }
+
+      .panel-kicker {
+        color: #8b95aa;
+        font-size: 0.58rem;
+        letter-spacing: 0.42em;
+      }
+
+      .board-topbar h2 {
+        margin-top: 10px;
+        color: #b89a56;
+        font-size: 0.66rem;
+        font-weight: 850;
+        letter-spacing: 0.36em;
+        text-transform: uppercase;
+      }
+
+      .top-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      h2,
+      h3,
+      .panel h2 {
+        color: #eef5ff;
+      }
+
+      .button {
+        min-height: 32px;
+        border-radius: 6px;
+        padding: 0 14px;
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .button.accent {
+        background: linear-gradient(180deg, #d9bd76, #b88f3f);
+        color: #111424;
+        box-shadow: 0 8px 20px rgba(184, 143, 63, 0.2);
+      }
+
+      .button.outline {
+        border: 1px solid #6d2636;
+        background: transparent;
+        color: #8f3e50;
+      }
+
+      .button.primary,
+      .button.neutral {
+        background: #122247;
+        color: #d9e5f4;
+      }
+
+      .button.ghost {
+        color: #8b95aa;
+      }
+
+      .case-grid {
+        grid-template-columns: repeat(6, minmax(120px, 1fr));
+        gap: 4px;
+      }
+
+      .case-button {
+        position: relative;
+        min-height: 118px;
+        border: 1px solid #243457;
+        border-radius: 6px;
+        background: linear-gradient(180deg, #111831 0%, #10162d 100%);
+        color: #c9a75a;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      }
+
+      .case-button:hover:not(:disabled) {
+        border-color: #b89a56;
+        transform: none;
+        box-shadow: inset 0 0 0 1px rgba(184, 154, 86, 0.35);
+      }
+
+      .case-button.selected,
+      .case-button.revealed {
+        border-color: #b89a56;
+        background: linear-gradient(180deg, #162345 0%, #0d142b 100%);
+        color: #f4e4b7;
+      }
+
+      .case-front,
+      .case-prize {
+        min-height: 94px;
+      }
+
+      .case-front {
+        gap: 10px;
+      }
+
+      .case-icon {
+        position: relative;
+        width: 20px;
+        height: 14px;
+        border: 1px solid #b89a56;
+        border-radius: 2px;
+      }
+
+      .case-icon::before {
+        content: "";
+        position: absolute;
+        left: 6px;
+        top: -5px;
+        width: 8px;
+        height: 5px;
+        border: 1px solid #b89a56;
+        border-bottom: 0;
+        border-radius: 2px 2px 0 0;
+      }
+
+      .case-icon::after {
+        content: "";
+        position: absolute;
+        left: 7px;
+        top: 5px;
+        width: 4px;
+        height: 2px;
+        border: 1px solid #b89a56;
+        background: #10162d;
+      }
+
+      .case-number {
+        color: #c9a75a;
+        font-size: 1.22rem;
+        font-weight: 900;
+      }
+
+      .case-prize {
+        color: #f4e4b7;
+        font-size: 0.98rem;
+      }
+
+      .selected-banner {
+        margin-bottom: 8px;
+        border-color: #243457;
+        background: #0b1228;
+        color: #d9e5f4;
+      }
+
+      .finish-card {
+        border-color: #b89a56;
+        background: #0b1228;
+      }
+
+      .finish-card p {
+        color: #b89a56;
+      }
+
+      .finish-card h3,
+      .finish-card strong {
+        color: #eef5ff;
+      }
+
+      .winner-input,
+      .prize-input {
+        border-color: #243457;
+        background: #080d20;
+        color: #eef5ff;
+      }
+
+      .winner-input::placeholder {
+        color: #69758e;
+      }
+
+      .winner-row,
+      .prize-row {
+        border-color: #1d2a4b;
+        background: #0b1228;
+      }
+
+      .winner-row span,
+      .prize-name {
+        color: #eef5ff;
+      }
+
+      .winner-row small,
+      footer {
+        color: #8b95aa;
+      }
+
+      @media (max-width: 940px) {
+        .case-grid {
+          grid-template-columns: repeat(3, minmax(100px, 1fr));
+        }
+      }
+
+      @media (max-width: 620px) {
+        .board-topbar {
+          align-items: stretch;
+        }
+
+        .top-actions {
+          display: grid;
+          grid-template-columns: 1fr;
+        }
+
+        .case-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .brand-title {
+          font-size: 1.6rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script>
+      const defaultPrizes = [
+        "Free Lunch",
+        "$10 Gift Card",
+        "30 Min Extended Lunch",
+        "Leave 1 Hour Early",
+        "Coffee on the Company",
+        "Casual Dress Day",
+        "$25 Amazon Gift Card",
+        "Prime Parking Spot",
+        "Extra Break",
+        "Team Snack Cart",
+        "Half Day Friday",
+        "Mystery Prize",
+      ];
+
+      const storageKeys = {
+        prizes: "sutton-place-deal-prizes",
+        winners: "sutton-place-deal-winners",
+      };
+
+      function loadStoredJson(key, fallback) {
+        try {
+          const stored = window.localStorage?.getItem(key) || readCookie(key);
+          return stored ? JSON.parse(stored) : fallback;
+        } catch {
+          return fallback;
+        }
+      }
+
+      function saveStoredJson(key, value) {
+        const serialized = JSON.stringify(value);
+
+        try {
+          window.localStorage?.setItem(key, serialized);
+        } catch {
+          // Cookie backup below still keeps the app usable when storage is blocked.
+        }
+
+        writeCookie(key, serialized);
+        saveServerState();
+      }
+
+      async function saveServerState() {
+        if (window.location.protocol === "file:") return;
+
+        try {
+          await fetch("/api/state", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ prizes, winners }),
+          });
+        } catch {
+          // Browser storage and cookies are already updated as a fallback.
+        }
+      }
+
+      async function loadServerState() {
+        if (window.location.protocol === "file:") return;
+
+        try {
+          const response = await fetch("/api/state");
+          const state = await response.json();
+          let hasServerState = false;
+
+          if (Array.isArray(state.prizes) && state.prizes.length > 0) {
+            prizes = state.prizes;
+            saveStoredJson(storageKeys.prizes, prizes);
+            hasServerState = true;
+          }
+
+          if (Array.isArray(state.winners)) {
+            winners = state.winners;
+            saveStoredJson(storageKeys.winners, winners);
+            hasServerState = true;
+          }
+
+          if (hasServerState) {
+            caseContents = shufflePrizes(prizes);
+            resetGame();
+            render();
+          }
+        } catch {
+          // Local browser backup is already loaded synchronously.
+        }
+      }
+
+      function readCookie(key) {
+        const cookie = document.cookie
+          .split("; ")
+          .find((item) => item.startsWith(`${encodeURIComponent(key)}=`));
+
+        return cookie ? decodeURIComponent(cookie.split("=").slice(1).join("=")) : "";
+      }
+
+      function writeCookie(key, value) {
+        document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(
+          value
+        )}; max-age=31536000; path=/; SameSite=Lax`;
+      }
+
+      let prizes = loadStoredJson(storageKeys.prizes, [...defaultPrizes]);
+      let caseContents = shufflePrizes(prizes);
+      let editingPrize = null;
+      let tempValue = "";
+      let openedCases = [];
+      let selectedCase = null;
+      let gameOver = false;
+      let offer = null;
+      let showAll = false;
+      let winnerName = "";
+      let winners = loadStoredJson(storageKeys.winners, []);
+
+      function shufflePrizes(source) {
+        const items = [...source];
+        for (let i = items.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [items[i], items[j]] = [items[j], items[i]];
+        }
+        return items;
+      }
+
+      function resetGame() {
+        openedCases = [];
+        selectedCase = null;
+        gameOver = false;
+        offer = null;
+        showAll = false;
+        winnerName = "";
+      }
+
+      function startFreshShuffle() {
+        caseContents = shufflePrizes(prizes);
+        resetGame();
+        render();
+      }
+
+      function revealAllPrizes() {
+        selectedCase = null;
+        openedCases = [];
+        showAll = true;
+        gameOver = true;
+        winnerName = "";
+        render();
+      }
+
+      function handleCaseClick(index) {
+        if (gameOver || offer) return;
+
+        selectedCase = index;
+        openedCases = [index];
+        gameOver = true;
+        render();
+        const input = document.querySelector("[data-winner-input]");
+        if (input) input.focus();
+      }
+
+      function acceptDeal() {
+        gameOver = true;
+        showAll = true;
+        render();
+      }
+
+      function declineDeal() {
+        offer = null;
+        render();
+      }
+
+      function editPrize(index) {
+        editingPrize = index;
+        tempValue = prizes[index];
+        render();
+        const input = document.querySelector(`[data-prize-input="${index}"]`);
+        if (input) {
+          input.focus();
+          input.select();
+        }
+      }
+
+      function savePrize(index) {
+        const input = document.querySelector(`[data-prize-input="${index}"]`);
+        const cleanValue = (input ? input.value : tempValue).trim();
+        if (!cleanValue) return;
+
+        prizes = prizes.map((prize, prizeIndex) =>
+          prizeIndex === index ? cleanValue : prize
+        );
+        saveStoredJson(storageKeys.prizes, prizes);
+        editingPrize = null;
+        caseContents = shufflePrizes(prizes);
+        resetGame();
+        render();
+      }
+
+      function addPrize() {
+        prizes = [...prizes, `New Incentive ${prizes.length + 1}`];
+        saveStoredJson(storageKeys.prizes, prizes);
+        caseContents = shufflePrizes(prizes);
+        resetGame();
+        render();
+      }
+
+      function removePrize(index) {
+        if (prizes.length <= 3) return;
+
+        prizes = prizes.filter((_, prizeIndex) => prizeIndex !== index);
+        saveStoredJson(storageKeys.prizes, prizes);
+        caseContents = shufflePrizes(prizes);
+        resetGame();
+        render();
+      }
+
+      function saveWinner() {
+        const input = document.querySelector("[data-winner-input]");
+        const cleanName = (input ? input.value : winnerName).trim();
+        if (!cleanName || selectedCase === null) return;
+
+        winners = [
+          {
+            name: cleanName,
+            prize: caseContents[selectedCase],
+            caseNumber: selectedCase + 1,
+          },
+          ...winners,
+        ];
+        saveStoredJson(storageKeys.winners, winners);
+        startFreshShuffle();
+      }
+
+      function clearWinners() {
+        winners = [];
+        saveStoredJson(storageKeys.winners, winners);
+        render();
+      }
+
+      function escapeHtml(value) {
+        return value
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function prizeRow(prize, index) {
+        if (editingPrize === index) {
+          return `
+            <div class="prize-row">
+              <input
+                data-prize-input="${index}"
+                value="${escapeHtml(tempValue)}"
+                class="prize-input"
+                aria-label="Prize name"
+              />
+              <button class="button success icon-sized" data-action="save-prize" data-index="${index}">
+                Save
+              </button>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="prize-row">
+            <span class="prize-name">${escapeHtml(prize)}</span>
+            <div class="row-actions">
+              <button class="button neutral icon-sized" data-action="edit-prize" data-index="${index}">
+                Edit
+              </button>
+              <button
+                class="button ghost icon-sized"
+                data-action="remove-prize"
+                data-index="${index}"
+                ${prizes.length <= 3 ? "disabled" : ""}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      function caseButton(prize, index) {
+        const isOpened = openedCases.includes(index);
+        const isSelected = selectedCase === index;
+        const isRevealed = isOpened || showAll;
+        const classes = [
+          "case-button",
+          isSelected ? "selected" : "",
+          isRevealed ? "revealed" : "",
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+        return `
+          <button
+            class="${classes}"
+            data-action="case-click"
+            data-index="${index}"
+            ${gameOver || offer || isOpened ? "disabled" : ""}
+          >
+            ${
+              !isRevealed
+                ? `
+                  <span class="case-front">
+                    <span class="case-icon" aria-hidden="true"></span>
+                    <span class="case-number">${index + 1}</span>
+                    ${isSelected ? '<span class="your-case">Your Case</span>' : ""}
+                  </span>
+                `
+                : `<span class="case-prize">${escapeHtml(prize)}</span>`
+            }
+          </button>
+        `;
+      }
+
+      function render() {
+        document.getElementById("app").innerHTML = `
+          <div class="app-shell">
+            <main class="game-layout">
+              <header class="page-header">
+                <p class="eyebrow">Leasing Incentive Edition</p>
+                <h1>Deal or No Deal</h1>
+              </header>
+
+              <section class="content-grid">
+                <aside class="panel incentives-panel" aria-label="Editable incentives">
+                  <div class="panel-header">
+                    <div>
+                      <p class="panel-kicker">Prize List</p>
+                      <h2>Editable Incentives</h2>
+                    </div>
+                    <button class="button primary small" data-action="add-prize">Add</button>
+                  </div>
+
+                  <div class="prize-list">
+                    ${prizes.map(prizeRow).join("")}
+                  </div>
+                </aside>
+
+                <section class="panel board-panel" aria-label="Game board">
+                  <h1 class="brand-title">Sutton Place Deal Or No Deal</h1>
+
+                  <div class="board-topbar">
+                    <div>
+                      <p class="panel-kicker">Game Board</p>
+                      <h2>Ready when you are</h2>
+                    </div>
+
+                    <div class="top-actions">
+                      <button class="button accent" data-action="reveal-all">
+                        Reveal All Prizes
+                      </button>
+                      <button class="button outline" data-action="shuffle">
+                        Scramble
+                      </button>
+                    </div>
+                  </div>
+
+                  ${
+                    selectedCase !== null
+                      ? `
+                        <div class="selected-banner">
+                          Your selected case: <strong>#${selectedCase + 1}</strong>
+                        </div>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    offer && !gameOver
+                      ? `
+                        <div class="offer-card" role="dialog" aria-live="polite">
+                          <p>The Banker Offers</p>
+                          <h3>${escapeHtml(offer)}</h3>
+                          <div class="deal-actions">
+                            <button class="button success large" data-action="deal">Deal</button>
+                            <button class="button danger large" data-action="no-deal">No Deal</button>
+                          </div>
+                        </div>
+                      `
+                      : ""
+                  }
+
+                  <div class="case-grid">
+                    ${caseContents.map(caseButton).join("")}
+                  </div>
+
+                  ${
+                    gameOver && selectedCase !== null
+                      ? `
+                        <div class="finish-card">
+                          <p>Game Finished</p>
+                          <h3>Your Case Contains:</h3>
+                          <strong>
+                            ${
+                              selectedCase !== null
+                                ? escapeHtml(caseContents[selectedCase])
+                                : "No case selected"
+                            }
+                          </strong>
+                          ${
+                            selectedCase !== null
+                              ? `
+                                <div class="winner-form">
+                                  <input
+                                    class="winner-input"
+                                    data-winner-input
+                                    value="${escapeHtml(winnerName)}"
+                                    placeholder="Type winner name"
+                                    aria-label="Winner name"
+                                  />
+                                  <button class="button success" data-action="save-winner">
+                                    Save Winner
+                                  </button>
+                                </div>
+                              `
+                              : ""
+                          }
+                        </div>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    winners.length
+                      ? `
+                        <div class="winner-list" aria-label="Winner history">
+                          <div class="winner-list-header">
+                            <p class="panel-kicker">Saved Winners</p>
+                            <button class="button outline" data-action="clear-winners">
+                              Clear Winners
+                            </button>
+                          </div>
+                          ${winners
+                            .map(
+                              (winner) => `
+                                <div class="winner-row">
+                                  <span>${escapeHtml(winner.name)}</span>
+                                  <small>Case #${winner.caseNumber}: ${escapeHtml(winner.prize)}</small>
+                                </div>
+                              `
+                            )
+                            .join("")}
+                        </div>
+                      `
+                      : ""
+                  }
+                </section>
+              </section>
+
+              <footer>Customize the incentives, click a case, then save the winner.</footer>
+            </main>
+          </div>
+        `;
+      }
+
+      document.addEventListener("click", (event) => {
+        const target = event.target.closest("[data-action]");
+        if (!target) return;
+
+        const action = target.dataset.action;
+        const index = Number(target.dataset.index);
+
+        if (action === "add-prize") addPrize();
+        if (action === "edit-prize") editPrize(index);
+        if (action === "save-prize") savePrize(index);
+        if (action === "remove-prize") removePrize(index);
+        if (action === "case-click") handleCaseClick(index);
+        if (action === "shuffle") startFreshShuffle();
+        if (action === "reveal-all") revealAllPrizes();
+        if (action === "deal") acceptDeal();
+        if (action === "no-deal") declineDeal();
+        if (action === "save-winner") saveWinner();
+        if (action === "clear-winners") clearWinners();
+      });
+
+      document.addEventListener("input", (event) => {
+        if (event.target.matches("[data-prize-input]")) {
+          tempValue = event.target.value;
+        }
+
+        if (event.target.matches("[data-winner-input]")) {
+          winnerName = event.target.value;
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.target.matches("[data-winner-input]") && event.key === "Enter") {
+          saveWinner();
+          return;
+        }
+
+        if (!event.target.matches("[data-prize-input]")) return;
+
+        const index = Number(event.target.dataset.prizeInput);
+        if (event.key === "Enter") savePrize(index);
+        if (event.key === "Escape") {
+          editingPrize = null;
+          render();
+        }
+      });
+
+      render();
+      loadServerState();
+    </script>
+  </body>
+</html>
